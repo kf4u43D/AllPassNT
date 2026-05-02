@@ -1,0 +1,16 @@
+build/
+distingNT_API/
+*.o
+*.obj
+*.exe
+*.log
+*.tmp
+
+# Local editor/workspace state
+.vs/
+.vscode/
+*.code-workspace
+
+# OS noise
+Thumbs.db
+Desktop.ini
