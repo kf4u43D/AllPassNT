@@ -10,6 +10,8 @@ distingNT_API/
 *.pdb
 *.log
 *.tmp
+__pycache__/
+*.py[cod]
 
 # Local editor/workspace state
 .vs/

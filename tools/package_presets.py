@@ -1,11 +1,18 @@
-"""Package the validated WideSmearNT16 bank with the audited ARM plug-in."""
+"""Package the current verified WideSmearNT plug-in and 16 presets for MicroSD."""
 import argparse
+from datetime import date
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
+import shutil
+import subprocess
 import zipfile
 
+import verify_presets
+
 ROOT = Path(__file__).resolve().parents[1]
+BANK = ROOT / "presets/WideSmearNT16"
 
 
 def sha256(data):
@@ -17,113 +24,144 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def project_file(relative):
+    """Accept only normal, relative paths to files inside this project."""
+    require(isinstance(relative, str) and "\\" not in relative,
+            "Unsafe file path in validation report")
+    parts = PurePosixPath(relative)
+    require(not parts.is_absolute() and ".." not in parts.parts and ":" not in relative,
+            "Unsafe file path in validation report")
+    path = (ROOT / relative).resolve()
+    require(path.is_relative_to(ROOT) and path.is_file(),
+            f"Missing or unsafe project file: {relative}")
+    return path
+
+
+def require_fresh(artifact, sources):
+    require(artifact.is_file(), f"Missing artifact: {artifact}")
+    stale = [path.relative_to(ROOT).as_posix() for path in sources
+             if path.stat().st_mtime_ns > artifact.stat().st_mtime_ns]
+    require(not stale, f"Rebuild {artifact.name}; newer sources: {', '.join(stale)}")
+
+
+def verify_object(object_path):
+    host = shutil.which("pwsh") or shutil.which("powershell")
+    require(host, "PowerShell is required to verify the ARM plug-in")
+    subprocess.run([host, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                    str(ROOT / "verify.ps1"), "-ObjectPath", str(object_path)],
+                   cwd=ROOT, check=True, timeout=60)
+
+
+def version_date(version):
+    match = re.fullmatch(r"v(\d{4})\.(\d{2})\.(\d{2})(?:[.-][A-Za-z0-9]+)*", version)
+    require(match is not None, "Version must start with vYYYY.MM.DD")
+    release_date = date(*(int(value) for value in match.groups()))
+    require(1980 <= release_date.year <= 2107, "Version date is outside the ZIP date range")
+    return (release_date.year, release_date.month, release_date.day, 0, 0, 0)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--validation", type=Path,
                         default=ROOT / "build/preset-validation/validation.json")
-    parser.add_argument("--release-manifest", type=Path,
-                        default=ROOT / "build/audit-2026-10-15/release-manifest.json")
-    parser.add_argument("--output", type=Path,
-                        default=ROOT / "archive/2026-10-15/WideSmearNT16-NT-2026-10-15.zip")
+    parser.add_argument("--object", type=Path, default=ROOT / "build/WideSmearNT.o")
+    parser.add_argument("--version", default="v2026.10.17.1")
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    report_bytes = args.validation.read_bytes()
-    report = json.loads(report_bytes)
+    timestamp = version_date(args.version)
+    output = (args.output or ROOT / "build/releases" /
+              f"WideSmearNT16-NT-{args.version}.zip").resolve()
+    object_path = args.object.resolve()
+    report = json.loads(args.validation.read_bytes())
     require(report.get("pass") is True and report.get("count") == 16,
             "All 16 presets must pass native validation before packaging")
-    require(report.get("hardware_loader_executed") is False,
-            "Validation must accurately disclose the hardware-loader boundary")
     contract = report["factory_contract"]
-    require(contract["api_version"] == 13 and contract["guid"] == "SMNT"
-            and contract["num_parameters"] == 56 and contract["common_parameter_offset"] == 1,
-            "Validated native factory does not match the audited WideSmearNT API v13 plug-in")
+    verify_presets.validate_contract(contract)
+    inspector = Path(report["inspector"])
+    if not inspector.is_absolute():
+        inspector = ROOT / inspector
+    inspector = inspector.resolve()
+    require(inspector.is_file() and
+            sha256(inspector.read_bytes()) == report["inspector_sha256"],
+            "Native inspector is missing or changed since validation")
+
+    core = ROOT / "src/widesmearnt_core"
+    arm_sources = ([ROOT / "src/WideSmearNTAdapter.cpp"] +
+                   list((ROOT / "src").glob("*.h")) +
+                   list(core.rglob("*.h")) + list(core.rglob("*.cpp")) +
+                   list((ROOT / "include").rglob("*.h")))
+    require_fresh(object_path, arm_sources)
+    require_fresh(inspector, arm_sources + [ROOT / "src/NTHostShim.cpp",
+                                          ROOT / "tests/PresetInspector.cpp"])
+    verify_object(object_path)
+
+    # Recheck the current inspector and bank instead of trusting an old audit.
+    current = verify_presets.validate_bank(BANK, inspector)
+    require(current["factory_contract"] == contract,
+            "Factory contract changed since validation")
     rows = report["presets"]
     require(len(rows) == 16, "Expected exactly 16 validation results")
-
-    # The native factory and the included ARM object must refer to the same
-    # unchanged sources/API as the completed maintenance audit.
-    audited = json.loads(args.release_manifest.read_bytes())
-    require(audited["checks_exit_code"] == 0 and audited["api_version"] == 13,
-            "Expected successful API v13 maintenance audit")
-    checked_sources = []
-    audited_object_hash = None
-    for row in audited["files"]:
-        path = row["path"]
-        if path.startswith(("src/", "include/")) or path == "build/WideSmearNT.o":
-            require(sha256((ROOT / path).read_bytes()) == row["sha256"],
-                    f"Audited source/object has changed: {path}")
-            if path == "build/WideSmearNT.o":
-                audited_object_hash = row["sha256"]
-            else:
-                checked_sources.append(path)
-    require(audited_object_hash and checked_sources,
-            "Missing audited plug-in object or source fingerprints")
-
-    payload = {}
-    bank_files = set((ROOT / "presets/WideSmearNT16").glob("*.json"))
+    bank_files = {path.resolve() for path in BANK.iterdir()
+                  if path.is_file() and path.suffix.lower() == ".json"}
     seen_files = set()
+    payload = {}
     for row in rows:
-        relative = Path(row["path"])
-        require(not relative.is_absolute() and ".." not in relative.parts,
-                "Unsafe preset path in validation report")
-        path = ROOT / relative
+        path = project_file(row["path"])
         require(path in bank_files and path not in seen_files,
-                f"Unexpected or repeated validated preset: {relative}")
+                f"Unexpected or repeated validated preset: {row['path']}")
         data = path.read_bytes()
-        require(sha256(data) == row["sha256"], f"Preset changed after validation: {relative}")
-        require(row["native_result"]["pass"] is True, f"Native preset test failed: {relative}")
-        payload[relative.as_posix()] = data
+        require(sha256(data) == row["sha256"],
+                f"Preset changed after validation: {row['path']}")
+        verify_presets.validate_stats(row["native_result"])
+        payload[f"presets/WideSmearNT16/{path.name}"] = data
         seen_files.add(path)
     require(seen_files == bank_files and len(bank_files) == 16,
             "Preset directory differs from the validated bank")
 
-    payload["programs/plug-ins/WideSmearNT.o"] = (ROOT / "build/WideSmearNT.o").read_bytes()
-    payload["WideSmearNT16-README.md"] = (ROOT / "presets/README.md").read_bytes()
-    payload["WideSmearNT-modulation-README.md"] = (ROOT / "README.md").read_bytes()
-    payload["validation/validation.json"] = report_bytes
+    payload["programs/plug-ins/WideSmearNT.o"] = object_path.read_bytes()
+    payload["README.md"] = (ROOT / "README.md").read_bytes()
+    payload["PRESETS.md"] = (ROOT / "presets/README.md").read_bytes()
     manifest = {
-        "bank": "WideSmearNT16", "date": "2026-10-15", "native_preset_version": 2,
-        "preset_count": 16, "plugin_guid": "SMNT", "plugin_api_version": 13,
-        "minimum_firmware": "1.15.0", "target_firmware": "1.18.0",
-        "hardware_loader_executed": False,
-        "audited_object_sha256": audited_object_hash,
-        "audited_source_files_unchanged": checked_sources,
-        "files": [{"path": path, "bytes": len(data), "sha256": sha256(data)}
+        "name": "WideSmearNT", "version": args.version,
+        "description": "A stereo phase effect for disting NT, with 16 presets.",
+        "files": [{"path": path, "sha256": sha256(data)}
                   for path, data in sorted(payload.items())],
     }
-    payload["validation/manifest.json"] = (
+    payload["manifest.json"] = (
         json.dumps(manifest, ensure_ascii=True, indent=2) + "\n").encode("utf-8")
     payload["SHA256SUMS.txt"] = "".join(
         f"{sha256(data)}  {path}\n" for path, data in sorted(payload.items())
     ).encode("ascii")
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    temporary = args.output.with_suffix(".zip.tmp")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output.with_suffix(".zip.tmp")
     try:
         with zipfile.ZipFile(temporary, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
             for path, data in sorted(payload.items()):
-                entry = zipfile.ZipInfo(path, date_time=(2026, 10, 15, 0, 0, 0))
+                parts = PurePosixPath(path)
+                require(not parts.is_absolute() and ".." not in parts.parts,
+                        f"Unsafe ZIP path: {path}")
+                entry = zipfile.ZipInfo(path, date_time=timestamp)
                 entry.compress_type = zipfile.ZIP_DEFLATED
                 entry.external_attr = 0o100644 << 16
                 archive.writestr(entry, data)
         with zipfile.ZipFile(temporary) as archive:
             require(archive.testzip() is None, "ZIP integrity check failed")
-            require(set(archive.namelist()) == set(payload), "ZIP file list mismatch")
+            require(len(archive.namelist()) == len(payload) and
+                    set(archive.namelist()) == set(payload), "ZIP file list mismatch")
             for path, expected in payload.items():
                 require(archive.read(path) == expected, f"ZIP content mismatch: {path}")
             native_files = [path for path in archive.namelist()
                             if path.startswith("presets/WideSmearNT16/") and path.endswith(".json")]
             require(len(native_files) == 16, "Expected exactly 16 native presets in the ZIP")
-            for path in native_files:
-                require(json.loads(archive.read(path))["kind"] == "disting NT preset",
-                        f"Non-native preset in ZIP: {path}")
-        temporary.replace(args.output)
+        temporary.replace(output)
     finally:
         if temporary.exists():
             temporary.unlink()
-    digest = sha256(args.output.read_bytes())
-    checksum = args.output.with_suffix(".zip.sha256")
-    checksum.write_text(f"{digest}  {args.output.name}\n", encoding="ascii")
-    print(f"Packaged and verified 16 native presets: {args.output}")
+    digest = sha256(output.read_bytes())
+    checksum = output.with_suffix(".zip.sha256")
+    checksum.write_text(f"{digest}  {output.name}\n", encoding="ascii")
+    print(f"Packaged and verified 16 native presets: {output}")
     print(f"SHA256 {digest}")
 
 
