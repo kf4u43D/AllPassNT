@@ -21,12 +21,12 @@ Le fabricant recommande [NT Helper pour Windows/macOS/Linux](https://nosuch.dev/
 3. Ouvrir **Firmware** dans le menu, ou cliquer sur le numéro de firmware.
 4. Choisir le canal **stable**, puis **1.18.0**, ou sélectionner le paquet local téléchargé.
 5. Suivre la confirmation de passage en bootloader et de flash. NT Helper peut automatiser le bootloader à partir du firmware 1.15 ; les versions antérieures affichent les instructions manuelles.
-6. Après redémarrage, vérifier la version 1.18.0 et tester le chargement des presets et de SmearNT sur le module.
+6. Après redémarrage, vérifier la version 1.18.0 et tester le chargement des presets et de WideSmearNT sur le module.
 
 **Aucun flash ni déploiement matériel n'a été exécuté dans cette session.** La version actuellement installée sur le module n'a pas été interrogée.
 
 ## Compatibilité du SDK
 
-SmearNT conserve l'en-tête officiel **API v13** épinglé au commit `f440d20`, et requiert le firmware **1.15.0 ou supérieur**. Le firmware 1.18.0 est la cible stable proposée pour la validation matérielle.
+WideSmearNT conserve l'en-tête officiel **API v13** épinglé au commit `f440d20`, et requiert le firmware **1.15.0 ou supérieur**. Le firmware 1.18.0 est la cible stable proposée pour la validation matérielle.
 
-L'API upstream **v14** a été ajoutée le **29 septembre 2026** dans le [commit officiel f8b7d69](https://github.com/expertsleepersltd/distingNT_API/commit/f8b7d69b629f5bf40ee14979bcda7e50a31111e7), après la publication du firmware stable 1.18.0. Son firmware stable minimal n'est pas confirmé par l'historique du fabricant. Ses nouvelles fonctions de paramètres texte ne sont pas utilisées par SmearNT ; le projet reste donc sur API v13 pour préserver sa compatibilité documentée.
+L'API upstream **v14** a été ajoutée le **29 septembre 2026** dans le [commit officiel f8b7d69](https://github.com/expertsleepersltd/distingNT_API/commit/f8b7d69b629f5bf40ee14979bcda7e50a31111e7), après la publication du firmware stable 1.18.0. Son firmware stable minimal n'est pas confirmé par l'historique du fabricant. Ses nouvelles fonctions de paramètres texte ne sont pas utilisées par WideSmearNT ; le projet reste donc sur API v13 pour préserver sa compatibilité documentée.

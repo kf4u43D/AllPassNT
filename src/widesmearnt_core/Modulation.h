@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdint>
 
-namespace smearnt {
+namespace widesmearnt {
 
 enum class ModClockSource { Internal = 0, Cv = 1, Midi = 2 };
 
@@ -344,4 +344,4 @@ private:
     bool resetHigh_ = false;
 };
 
-} // namespace smearnt
+} // namespace widesmearnt

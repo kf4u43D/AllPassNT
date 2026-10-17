@@ -2,7 +2,7 @@
 param(
     [string]$Compiler = "",
     [string]$Python = "",
-    [string]$BankDir = ".\presets\SmearNT16",
+    [string]$BankDir = ".\presets\WideSmearNT16",
     [string]$OutDir = ".\build\preset-validation"
 )
 
@@ -39,18 +39,18 @@ $pythonExecutable = Resolve-Executable -Requested $Python -Candidates @("python"
 $outputDirectory = Resolve-ProjectPath -Requested $OutDir
 $bankDirectory = Resolve-ProjectPath -Requested $BankDir
 $isWindowsHost = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
-$executableName = if ($isWindowsHost) { "inspect_smearnt.exe" } else { "inspect_smearnt" }
+$executableName = if ($isWindowsHost) { "inspect_widesmearnt.exe" } else { "inspect_widesmearnt" }
 $executablePath = Join-Path $outputDirectory $executableName
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 
 $sources = @(
     "tests\PresetInspector.cpp",
-    "src\SmearNTAdapter.cpp",
+    "src\WideSmearNTAdapter.cpp",
     "src\NTHostShim.cpp",
-    "src\smearnt_core\SmearCore.cpp",
-    "src\smearnt_core\AllpassNetwork.cpp",
-    "src\smearnt_core\AllpassSection.cpp",
-    "src\smearnt_core\ParamSmoother.cpp"
+    "src\widesmearnt_core\SmearCore.cpp",
+    "src\widesmearnt_core\AllpassNetwork.cpp",
+    "src\widesmearnt_core\AllpassSection.cpp",
+    "src\widesmearnt_core\ParamSmoother.cpp"
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 $compilerArguments = @(
     "-std=c++14", "-O2", "-Wall", "-Wextra", "-Werror",

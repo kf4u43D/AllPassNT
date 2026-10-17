@@ -1,12 +1,12 @@
 {
   "kind": "disting NT preset",
-  "author": "SmearNT",
+  "author": "WideSmearNT",
   "engine": {
     "sampleRate": 48000,
     "blockSize": 24
   },
   "version": 2,
-  "name": "SMNT 07 Lineaire bas",
+  "name": "SMNT 08 Log bas",
   "slots": [
     {
       "guid": "SMNT",
@@ -15,7 +15,7 @@
         0,
         0
       ],
-      "name": "SmearNT",
+      "name": "WideSmearNT",
       "parameters": [
         0,
         1,
@@ -27,7 +27,7 @@
         15,
         60,
         100,
-        0,
+        50,
         0
       ],
       "ui": {

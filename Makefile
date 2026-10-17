@@ -10,15 +10,15 @@ else
 POWERSHELL ?= pwsh
 endif
 
-CORE_SRCS := src/smearnt_core/SmearCore.cpp \
-             src/smearnt_core/AllpassNetwork.cpp \
-             src/smearnt_core/AllpassSection.cpp \
-             src/smearnt_core/ParamSmoother.cpp
-ADAPTER_SRC := src/SmearNTAdapter.cpp
-HEADERS := $(wildcard src/*.h src/smearnt_core/*.h) include/distingnt/api.h verify.ps1 tools/assert_api.ps1
+CORE_SRCS := src/widesmearnt_core/SmearCore.cpp \
+             src/widesmearnt_core/AllpassNetwork.cpp \
+             src/widesmearnt_core/AllpassSection.cpp \
+             src/widesmearnt_core/ParamSmoother.cpp
+ADAPTER_SRC := src/WideSmearNTAdapter.cpp
+HEADERS := $(wildcard src/*.h src/widesmearnt_core/*.h) include/distingnt/api.h verify.ps1 tools/assert_api.ps1
 
 OUT_DIR := build
-TARGET := $(OUT_DIR)/smearnt_nt.o
+TARGET := $(OUT_DIR)/WideSmearNT.o
 
 all: $(TARGET)
 
@@ -47,6 +47,6 @@ check:
 	$(POWERSHELL) -NoProfile -ExecutionPolicy Bypass -File ./check.ps1
 
 clean:
-	rm -f $(TARGET) $(OUT_DIR)/smearnt_tests.exe
+	rm -f $(TARGET) $(OUT_DIR)/widesmearnt_tests.exe
 
 .PHONY: all clean test sanitize verify render check

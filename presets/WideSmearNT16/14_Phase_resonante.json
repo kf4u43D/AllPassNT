@@ -1,6 +1,6 @@
 {
   "kind": "disting NT preset",
-  "author": "SmearNT",
+  "author": "WideSmearNT",
   "engine": {
     "sampleRate": 48000,
     "blockSize": 24
@@ -15,7 +15,7 @@
         0,
         0
       ],
-      "name": "SmearNT",
+      "name": "WideSmearNT",
       "parameters": [
         0,
         1,

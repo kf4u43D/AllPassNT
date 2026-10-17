@@ -93,10 +93,10 @@ if ($outputDirectory) {
 
 $sources = @(
     "tools\smear_render.cpp",
-    "src\smearnt_core\SmearCore.cpp",
-    "src\smearnt_core\AllpassNetwork.cpp",
-    "src\smearnt_core\AllpassSection.cpp",
-    "src\smearnt_core\ParamSmoother.cpp"
+    "src\widesmearnt_core\SmearCore.cpp",
+    "src\widesmearnt_core\AllpassNetwork.cpp",
+    "src\widesmearnt_core\AllpassSection.cpp",
+    "src\widesmearnt_core\ParamSmoother.cpp"
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 
 $compilerArguments = @(

@@ -44,7 +44,7 @@ $outputDirectory = if ([System.IO.Path]::IsPathRooted($OutDir)) {
 } else {
     [System.IO.Path]::GetFullPath((Join-Path $repoRoot $OutDir))
 }
-$outputName = if ($Sanitize) { "smearnt_tests_san.exe" } else { "smearnt_tests.exe" }
+$outputName = if ($Sanitize) { "widesmearnt_tests_san.exe" } else { "widesmearnt_tests.exe" }
 $outputPath = Join-Path $outputDirectory $outputName
 $compilerPath = Resolve-HostCompiler -Requested $Compiler
 $compilerVersion = (& $compilerPath --version 2>&1) -join "`n"
@@ -54,13 +54,13 @@ $isWindowsHost = [System.Environment]::OSVersion.Platform -eq [System.PlatformID
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 
 $sources = @(
-    "tests\smearnt_tests.cpp",
+    "tests\widesmearnt_tests.cpp",
     "src\NTHostShim.cpp",
-    "src\SmearNTAdapter.cpp",
-    "src\smearnt_core\SmearCore.cpp",
-    "src\smearnt_core\AllpassNetwork.cpp",
-    "src\smearnt_core\AllpassSection.cpp",
-    "src\smearnt_core\ParamSmoother.cpp"
+    "src\WideSmearNTAdapter.cpp",
+    "src\widesmearnt_core\SmearCore.cpp",
+    "src\widesmearnt_core\AllpassNetwork.cpp",
+    "src\widesmearnt_core\AllpassSection.cpp",
+    "src\widesmearnt_core\ParamSmoother.cpp"
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 
 $arguments = @(
@@ -97,10 +97,10 @@ $arguments += $sources + @("-o", $outputPath)
 
 if ($StrictCore) {
     $strictSources = @(
-        "src\smearnt_core\SmearCore.cpp",
-        "src\smearnt_core\AllpassNetwork.cpp",
-        "src\smearnt_core\AllpassSection.cpp",
-        "src\smearnt_core\ParamSmoother.cpp"
+        "src\widesmearnt_core\SmearCore.cpp",
+        "src\widesmearnt_core\AllpassNetwork.cpp",
+        "src\widesmearnt_core\AllpassSection.cpp",
+        "src\widesmearnt_core\ParamSmoother.cpp"
     ) | ForEach-Object { Join-Path $repoRoot $_ }
     $strictArguments = @(
         "-std=c++14",

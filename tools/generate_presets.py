@@ -1,9 +1,9 @@
-"""Generate the 16 native disting NT SmearNT showcase presets (stdlib only)."""
+"""Generate the 16 native disting NT WideSmearNT showcase presets (stdlib only)."""
 from pathlib import Path
 import json
 
 ROOT = Path(__file__).resolve().parents[1]
-BANK = ROOT / "presets" / "SmearNT16"
+BANK = ROOT / "presets" / "WideSmearNT16"
 
 # name, Frequency, Resonance, Stages, Distribution, Feedback, explanation, source
 PRESETS = [
@@ -30,14 +30,14 @@ def native_preset(index, row):
     name, frequency, resonance, stages, distribution, feedback, _, _ = row
     return {
         "kind": "disting NT preset",
-        "author": "SmearNT",
+        "author": "WideSmearNT",
         "engine": {"sampleRate": 48000, "blockSize": 24},
         "version": 2,
         "name": f"SMNT {index:02d} {name}",
         "slots": [{
             "guid": "SMNT",
             "specs": [0, 0, 0],
-            "name": "SmearNT",
+            "name": "WideSmearNT",
             # The single host Bypass precedes the 11 plug-in parameters.
             "parameters": [0, 1, 2, 13, 1, 14, 1,
                            frequency, resonance, stages, distribution, feedback],

@@ -1,9 +1,9 @@
-# SmearNT (disting NT, API v13)
+# WideSmearNT (disting NT, API v13)
 
 Canonical layout:
 
-- `src/smearnt_core/`: DSP core (allpass network, smoother, etc.)
-- `src/SmearNTAdapter.cpp`: NT adapter using API v13
+- `src/widesmearnt_core/`: DSP core (allpass network, smoother, etc.)
+- `src/WideSmearNTAdapter.cpp`: NT adapter using API v13
 - `include/distingnt/api.h`: pinned disting NT API header used by the build
 - `tests/`: native DSP and adapter regression suite
 - `tools/`: dependency-free offline WAV renderer
@@ -17,11 +17,11 @@ Requirements: `arm-none-eabi-g++` (found in PATH). The required NT API header is
 
 Commands (from repo root):
 
-- PowerShell: `.\build.ps1` (produces `build/smearnt_nt.o`)
+- PowerShell: `.\build.ps1` (produces `build/WideSmearNT.o`)
 - If script execution is blocked: `powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1`
 - PowerShell clean: `.\build.ps1 -Clean`
 - Override toolchain: `.\build.ps1 -Toolchain "C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\14.3 rel1\bin\arm-none-eabi-g++.exe"`
-- `make` (produces `build/smearnt_nt.o`)
+- `make` (produces `build/WideSmearNT.o`)
 - Override toolchain if needed: `make TOOLCHAIN="C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.3 rel1/bin/arm-none-eabi-g++"`
 - Clean: `make clean`
 
@@ -60,7 +60,7 @@ All controls use the same `0..100` values shown by the plug-in. The source is se
 
 ## Installation
 
-SmearNT targets plug-in API v13 and therefore requires disting NT firmware 1.15.0 or newer. Copy `build/smearnt_nt.o` to `/programs/plug-ins/` on the MicroSD card, then reboot/remount the card or trigger a plug-in rescan.
+WideSmearNT targets plug-in API v13 and therefore requires disting NT firmware 1.15.0 or newer. Copy `build/WideSmearNT.o` to `/programs/plug-ins/` on the MicroSD card, then reboot/remount the card or trigger a plug-in rescan.
 
 ## API conformance (v13)
 

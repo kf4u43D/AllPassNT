@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$ObjectPath = ".\build\smearnt_nt.o",
+    [string]$ObjectPath = ".\build\WideSmearNT.o",
     [string]$Nm = "",
     [string]$ReadElf = "",
     [string]$ApiHeaderPath = ""

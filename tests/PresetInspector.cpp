@@ -1,6 +1,6 @@
 #include <distingnt/api.h>
 
-#include "SmearNTParameters.h"
+#include "WideSmearNTParameters.h"
 
 #include <algorithm>
 #include <array>

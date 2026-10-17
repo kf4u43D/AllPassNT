@@ -1,17 +1,17 @@
-// SmearNT adapter for disting NT, API v13.
-// Uses the canonical DSP core located in src/smearnt_core/.
+// WideSmearNT adapter for disting NT, API v13.
+// Uses the canonical DSP core located in src/widesmearnt_core/.
 #include <new>
 #include <cstddef>
 #include <climits>
 #include <cmath>
 #include <distingnt/api.h>
-#include "SmearNTParameters.h"
-#include "smearnt_core/SmearCore.h"
-#include "smearnt_core/Modulation.h"
+#include "WideSmearNTParameters.h"
+#include "widesmearnt_core/SmearCore.h"
+#include "widesmearnt_core/Modulation.h"
 
 struct SmearntAlgorithm : public _NT_algorithm {
     SmearCore core;
-    smearnt::ModulationTransport transport;
+    widesmearnt::ModulationTransport transport;
     unsigned controlCounter = 0;
 };
 
@@ -75,8 +75,8 @@ static const _NT_parameter parameters[] = {
 
 static_assert(ARRAY_SIZE(parameters) == kNumParameters,
               "Parameter indices are part of the persisted preset schema");
-static_assert(ARRAY_SIZE(rates) == smearnt::ModulationTransport::kRateCount &&
-              ARRAY_SIZE(shapes) == smearnt::ModulationTransport::kShapeCount,
+static_assert(ARRAY_SIZE(rates) == widesmearnt::ModulationTransport::kRateCount &&
+              ARRAY_SIZE(shapes) == widesmearnt::ModulationTransport::kShapeCount,
               "Modulator menus must match the transport tables");
 static_assert(kParamMod2Shape - kParamMod1Shape == 5,
               "Each modulator uses shape, cycle, amount, offset and phase");
@@ -149,7 +149,7 @@ static void parameterChanged(_NT_algorithm* self, int p) {
     case kParamStereoMotion: alg->core.setStereoMotion(alg->v[p] * 0.01f); break;
     case kParamStereoCrossover: alg->core.setStereoCrossover(static_cast<float>(alg->v[p])); break;
     case kParamClockSource:
-        alg->transport.setClockSource(static_cast<smearnt::ModClockSource>(alg->v[p])); break;
+        alg->transport.setClockSource(static_cast<widesmearnt::ModClockSource>(alg->v[p])); break;
     case kParamTempo: alg->transport.setTempoBpm(static_cast<float>(alg->v[p])); break;
     case kParamClockPPQN: {
         const int index = alg->v[p];
@@ -181,7 +181,7 @@ static void applyModulation(SmearntAlgorithm* alg, float cv1, float cv2) {
     for (int mod = 0; mod < 2; ++mod) {
         const int p = kParamMod1Shape + mod * 5;
         const float phase = alg->transport.phaseForRate(alg->v[p + 1], alg->v[p + 4] / 360.0f);
-        const float wave = smearnt::ModulationTransport::waveform(alg->v[p], phase);
+        const float wave = widesmearnt::ModulationTransport::waveform(alg->v[p], phase);
         source[mod + 1] = clamp(wave * (alg->v[p + 2] * 0.01f) +
                                 alg->v[p + 3] * 0.01f, -1.0f, 1.0f);
     }
@@ -271,7 +271,7 @@ static void midiRealtime(_NT_algorithm* self, uint8_t byte) {
 
 static const _NT_factory factory = {
     .guid = NT_MULTICHAR('S', 'M', 'N', 'T'),
-    .name = "SmearNT",
+    .name = "WideSmearNT",
     .description = "Spectral smear, synced modulation and spectral stereo",
     .numSpecifications = 0,
     .specifications = nullptr,

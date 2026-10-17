@@ -1,6 +1,6 @@
 #pragma once
 
-#include "smearnt_core/Modulation.h"
+#include "widesmearnt_core/Modulation.h"
 #include <cmath>
 #include <cstdio>
 #include <limits>
@@ -12,16 +12,16 @@ inline bool phaseNear(float actual, float expected, float tolerance = 0.00002f) 
     return delta < tolerance || std::fabs(delta - 1.0f) < tolerance;
 }
 
-inline void samples(smearnt::ModulationTransport& transport, int count) {
+inline void samples(widesmearnt::ModulationTransport& transport, int count) {
     for (int sample = 0; sample < count; ++sample) transport.processSample();
 }
 
-inline void cvPulseAfter(smearnt::ModulationTransport& transport, int interval) {
+inline void cvPulseAfter(widesmearnt::ModulationTransport& transport, int interval) {
     samples(transport, interval - 1);
     transport.processSample(5.0f);
 }
 
-inline void midiPulseAfter(smearnt::ModulationTransport& transport, int interval) {
+inline void midiPulseAfter(widesmearnt::ModulationTransport& transport, int interval) {
     samples(transport, interval);
     transport.midiRealtime(0xf8);
 }
@@ -29,8 +29,8 @@ inline void midiPulseAfter(smearnt::ModulationTransport& transport, int interval
 } // namespace modulation_tests_detail
 
 inline int runModulationTests() {
-    using smearnt::ModClockSource;
-    using smearnt::ModulationTransport;
+    using widesmearnt::ModClockSource;
+    using widesmearnt::ModulationTransport;
     using namespace modulation_tests_detail;
     int failures = 0;
     const auto check = [&failures](bool condition, const char* message) {

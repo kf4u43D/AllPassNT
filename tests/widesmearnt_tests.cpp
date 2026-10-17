@@ -1,10 +1,10 @@
 #include <distingnt/api.h>
 
-#include "SmearNTParameters.h"
-#include "smearnt_core/AllpassNetwork.h"
-#include "smearnt_core/AllpassSection.h"
-#include "smearnt_core/ParamSmoother.h"
-#include "smearnt_core/SmearCore.h"
+#include "WideSmearNTParameters.h"
+#include "widesmearnt_core/AllpassNetwork.h"
+#include "widesmearnt_core/AllpassSection.h"
+#include "widesmearnt_core/ParamSmoother.h"
+#include "widesmearnt_core/SmearCore.h"
 #include "modulation_tests.h"
 #include "stereo_tests.h"
 
@@ -614,7 +614,7 @@ void testAdapterContract() {
     CHECK(test, factory->step != nullptr);
     CHECK(test, factory->midiRealtime != nullptr);
     CHECK(test, factory->guid == NT_MULTICHAR('S', 'M', 'N', 'T'));
-    CHECK(test, std::strcmp(factory->name, "SmearNT") == 0);
+    CHECK(test, std::strcmp(factory->name, "WideSmearNT") == 0);
     CHECK(test, std::strcmp(factory->description,
                             "Spectral smear, synced modulation and spectral stereo") == 0);
     CHECK(test, factory->tags == (kNT_tagEffect | kNT_tagFilterEQ));
@@ -1379,6 +1379,6 @@ int main() {
         std::fprintf(stderr, "%d test assertion(s) failed.\n", gFailures);
         return 1;
     }
-    std::printf("All SmearNT tests passed.\n");
+    std::printf("All WideSmearNT tests passed.\n");
     return 0;
 }

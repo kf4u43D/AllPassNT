@@ -41,7 +41,7 @@ if (!$SkipSanitizers) {
 $buildArguments = @("-OutDir", $buildDirectory)
 if ($Toolchain) { $buildArguments += @("-Toolchain", $Toolchain) }
 Invoke-ProjectScript -Label "Build et verification ARM" -Script (Join-Path $PSScriptRoot "build.ps1") -Arguments $buildArguments
-$armObject = Join-Path $buildDirectory "smearnt_nt.o"
+$armObject = Join-Path $buildDirectory "WideSmearNT.o"
 $firstArmHash = (Get-FileHash -LiteralPath $armObject -Algorithm SHA256).Hash
 Invoke-ProjectScript -Label "Remplacement de l'objet ARM existant" -Script (Join-Path $PSScriptRoot "build.ps1") -Arguments $buildArguments
 if ((Get-FileHash -LiteralPath $armObject -Algorithm SHA256).Hash -ne $firstArmHash) {

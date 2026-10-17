@@ -1,4 +1,4 @@
-#include "smearnt_core/SmearCore.h"
+#include "widesmearnt_core/SmearCore.h"
 
 #include <algorithm>
 #include <cmath>

@@ -1,12 +1,12 @@
 {
   "kind": "disting NT preset",
-  "author": "SmearNT",
+  "author": "WideSmearNT",
   "engine": {
     "sampleRate": 48000,
     "blockSize": 24
   },
   "version": 2,
-  "name": "SMNT 11 Phase aigu",
+  "name": "SMNT 13 Couleur 12 16",
   "slots": [
     {
       "guid": "SMNT",
@@ -15,7 +15,7 @@
         0,
         0
       ],
-      "name": "SmearNT",
+      "name": "WideSmearNT",
       "parameters": [
         0,
         1,
@@ -24,9 +24,9 @@
         1,
         14,
         1,
-        85,
-        60,
-        100,
+        50,
+        30,
+        50,
         50,
         0
       ],

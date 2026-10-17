@@ -1,12 +1,12 @@
 {
   "kind": "disting NT preset",
-  "author": "SmearNT",
+  "author": "WideSmearNT",
   "engine": {
     "sampleRate": 48000,
     "blockSize": 24
   },
   "version": 2,
-  "name": "SMNT 12 Couleur 04 08",
+  "name": "SMNT 09 Groupes bas",
   "slots": [
     {
       "guid": "SMNT",
@@ -15,7 +15,7 @@
         0,
         0
       ],
-      "name": "SmearNT",
+      "name": "WideSmearNT",
       "parameters": [
         0,
         1,
@@ -24,10 +24,10 @@
         1,
         14,
         1,
-        50,
-        30,
-        10,
-        50,
+        15,
+        60,
+        100,
+        100,
         0
       ],
       "ui": {

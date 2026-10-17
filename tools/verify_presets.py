@@ -1,4 +1,4 @@
-"""Check the SmearNT bank against its native envelope and real adapter (stdlib).
+"""Check the WideSmearNT bank against its native envelope and real adapter (stdlib).
 
 These are project compatibility checks, not a manufacturer-certified JSON schema.
 No disting NT firmware loader or physical hardware is executed by this script.
@@ -116,7 +116,7 @@ def validate_contract(contract):
     require(contract["guid"] == "SMNT", "factory GUID must be SMNT")
     integer_equal(contract["guid_numeric"], int.from_bytes(b"SMNT", "little"), "factory GUID number")
     integer_equal(contract["api_version"], 13, "factory API version")
-    require(contract["factory_name"] == "SmearNT", "factory name must be SmearNT")
+    require(contract["factory_name"] == "WideSmearNT", "factory name must be WideSmearNT")
     integer_equal(contract["num_specifications"], 0, "factory specification count")
     integer_equal(contract["num_parameters"], len(PARAMETER_NAMES), "factory parameter count")
     integer_equal(contract["common_parameter_offset"], 1, "native common parameter offset")
@@ -143,7 +143,7 @@ def validate_contract(contract):
 def validate_preset(document, index, factory_parameters):
     keys(document, ["kind", "author", "engine", "version", "name", "slots", "ui"], "preset")
     require(document["kind"] == "disting NT preset", "preset kind is not native NT")
-    require(document["author"] == "SmearNT", "preset author must be SmearNT")
+    require(document["author"] == "WideSmearNT", "preset author must be WideSmearNT")
     keys(document["engine"], ["sampleRate", "blockSize"], "engine")
     integer_equal(document["engine"]["sampleRate"], 48000, "engine sampleRate")
     integer_equal(document["engine"]["blockSize"], 24, "engine blockSize")
@@ -156,7 +156,7 @@ def validate_preset(document, index, factory_parameters):
     keys(slot, ["guid", "specs", "name", "parameters", "ui"], "slot")
     require(slot["guid"] == "SMNT", "slot GUID must be SMNT")
     ascii_name(slot["name"], "slot name")
-    require(slot["name"] == "SmearNT", "slot name must match factory")
+    require(slot["name"] == "WideSmearNT", "slot name must match factory")
     zeros(slot["specs"], 3, "slot specs")
     parameters = slot["parameters"]
     require(type(parameters) is list and
@@ -239,7 +239,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inspector", required=True, type=Path,
                         help="native PresetInspector executable compiled from the real adapter")
-    parser.add_argument("--bank", type=Path, default=ROOT / "presets" / "SmearNT16")
+    parser.add_argument("--bank", type=Path, default=ROOT / "presets" / "WideSmearNT16")
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "preset-validation" / "validation.json")
     options = parser.parse_args()
     output = options.output.resolve()

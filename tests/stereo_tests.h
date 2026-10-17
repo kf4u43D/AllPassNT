@@ -1,12 +1,12 @@
 #pragma once
 
-#include "smearnt_core/AllpassSection.h"
-#include "smearnt_core/SmearCore.h"
+#include "widesmearnt_core/AllpassSection.h"
+#include "widesmearnt_core/SmearCore.h"
 #include <cmath>
 #include <cstdio>
 #include <limits>
 
-namespace smearnt_stereo_tests {
+namespace widesmearnt_stereo_tests {
 
 inline void check(bool condition, const char* expression, int line, int& failures) {
     if (!condition) {
@@ -229,14 +229,14 @@ inline void testStereoExtremeRecovery(int& failures) {
 
 #undef STEREO_CHECK
 
-} // namespace smearnt_stereo_tests
+} // namespace widesmearnt_stereo_tests
 
 inline int runStereoTests() {
     int failures = 0;
-    smearnt_stereo_tests::testExtendedPoles(failures);
-    smearnt_stereo_tests::testBypassAndReset(failures);
-    smearnt_stereo_tests::testSpectralStereo(failures);
-    smearnt_stereo_tests::testMovingStability(failures);
-    smearnt_stereo_tests::testStereoExtremeRecovery(failures);
+    widesmearnt_stereo_tests::testExtendedPoles(failures);
+    widesmearnt_stereo_tests::testBypassAndReset(failures);
+    widesmearnt_stereo_tests::testSpectralStereo(failures);
+    widesmearnt_stereo_tests::testMovingStability(failures);
+    widesmearnt_stereo_tests::testStereoExtremeRecovery(failures);
     return failures;
 }

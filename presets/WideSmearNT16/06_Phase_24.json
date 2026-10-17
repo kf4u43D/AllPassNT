@@ -1,12 +1,12 @@
 {
   "kind": "disting NT preset",
-  "author": "SmearNT",
+  "author": "WideSmearNT",
   "engine": {
     "sampleRate": 48000,
     "blockSize": 24
   },
   "version": 2,
-  "name": "SMNT 10 Phase grave",
+  "name": "SMNT 06 Phase 24",
   "slots": [
     {
       "guid": "SMNT",
@@ -15,7 +15,7 @@
         0,
         0
       ],
-      "name": "SmearNT",
+      "name": "WideSmearNT",
       "parameters": [
         0,
         1,
@@ -24,8 +24,8 @@
         1,
         14,
         1,
-        0,
-        60,
+        50,
+        30,
         100,
         50,
         0

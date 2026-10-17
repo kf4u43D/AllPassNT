@@ -4,7 +4,7 @@ param(
     [string]$NtApiPath = "",
     [string]$OutDir = ".\build",
     [ValidatePattern('^[A-Za-z0-9_-]+\.o$')]
-    [string]$Target = "smearnt_nt.o",
+    [string]$Target = "WideSmearNT.o",
     [switch]$Clean
 )
 
@@ -83,11 +83,11 @@ New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 $temporaryOutputPath = Join-Path $outputDirectory ("{0}.{1}.tmp" -f $Target, [System.Guid]::NewGuid().ToString("N"))
 
 $sources = @(
-    "src\SmearNTAdapter.cpp",
-    "src\smearnt_core\SmearCore.cpp",
-    "src\smearnt_core\AllpassNetwork.cpp",
-    "src\smearnt_core\AllpassSection.cpp",
-    "src\smearnt_core\ParamSmoother.cpp"
+    "src\WideSmearNTAdapter.cpp",
+    "src\widesmearnt_core\SmearCore.cpp",
+    "src\widesmearnt_core\AllpassNetwork.cpp",
+    "src\widesmearnt_core\AllpassSection.cpp",
+    "src\widesmearnt_core\ParamSmoother.cpp"
 ) | ForEach-Object { Join-Path $repoRoot $_ }
 
 $arguments = @(

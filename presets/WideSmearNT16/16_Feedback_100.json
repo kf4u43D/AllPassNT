@@ -1,12 +1,12 @@
 {
   "kind": "disting NT preset",
-  "author": "SmearNT",
+  "author": "WideSmearNT",
   "engine": {
     "sampleRate": 48000,
     "blockSize": 24
   },
   "version": 2,
-  "name": "SMNT 01 Phase 04",
+  "name": "SMNT 16 Feedback 100",
   "slots": [
     {
       "guid": "SMNT",
@@ -15,7 +15,7 @@
         0,
         0
       ],
-      "name": "SmearNT",
+      "name": "WideSmearNT",
       "parameters": [
         0,
         1,
@@ -25,10 +25,10 @@
         14,
         1,
         50,
-        30,
-        0,
+        100,
+        100,
         50,
-        0
+        100
       ],
       "ui": {
         "page": 0,
