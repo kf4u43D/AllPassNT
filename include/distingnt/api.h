@@ -178,7 +178,7 @@ struct _NT_algorithmMemoryPtrs
 /*
  * Values for the unit field of _NT_parameter.
  */
-enum
+enum _NT_parameterUnit
 {
 	kNT_unitNone,
 	kNT_unitEnum,						// enumStrings must also be provided
@@ -239,10 +239,21 @@ struct _NT_parameterPage
 {
 	const char* 	name;					// Name of the page
 	uint8_t			numParams;				// Number of parameters on this page
-	uint8_t			group;					// Pages with the same group preserve UI position when switching.
+	uint8_t			group;					// See note below
 	uint8_t			unused[2];
 	const uint8_t*	params;					// Pointer to array of parameter indices
 };
+
+/*
+ * Note on parameter page group numbers:
+ *
+ * If pages share the same group number,
+ * the current parameter position within the page
+ * will be preserved by the UI when switching between pages.
+ *
+ * For backwards compatibility, if the group is 0,
+ * it will be set to the index of the page in the pages array.
+ */
 
 /*
  * Structure to define all the parameter pages of an algorithm.
@@ -357,10 +368,15 @@ struct _NT_uiData
 	uint8_t		unused[2];
 };
 
+/*
+ * Type used for stereo audio frames.
+ */
+typedef float _NT_frame[2];
+
 typedef float _NT_float3[3];
 
 /*
- * The minimum buffer size passed to parameterUiPrefixCallback().
+ * The minimum buffer size passed to parameterUiPrefix().
  */
 enum { kNT_parameterUiPrefixSize = 16 };
 
@@ -424,7 +440,7 @@ struct _NT_factory
 
 	/*
 	 * Primary audio rendering call.
-	 * busFrames gives access to all busses.
+	 * busFrames gives access to all 28 busses.
 	 * numFramesBy4 is the number of frames to render, divided by 4.
 	 * The busses are arranged one after the other.
 	 * i.e. numFrames of bus 0, then numFrames of bus 1, etc.
@@ -501,9 +517,9 @@ struct _NT_factory
 	 * Called by the host to allow the algorithm to return a string to be displayed
 	 * for a parameter other than the default numeric value.
 	 * Called for parameters of type kNT_unitHasStrings and kNT_unitConfirm.
-	 * The plug-in should fill buff[] with a NULL-terminated string and
-	 * return its length, or simply return 0 to use the default numeric value.
-	 * The size of buff is guaranteed to be at least kNT_parameterStringSize bytes.
+     * The plug-in should fill buff[] with a NULL-terminated string and
+     * return its length, or simply return 0 to use the default numeric value.
+     * The size of buff is guaranteed to be at least kNT_parameterStringSize bytes.
 	 */
 	int 			(*parameterString)( _NT_algorithm* self, int p, int v, char* buff );
 };
@@ -558,6 +574,7 @@ uint32_t	NT_parameterOffset(void);
 /*
  * Call to let the host know that the indexed parameter definition has changed.
  * i.e. self->parameters[ parameterIndex ] has been modified.
+ * May be called from a plug-in's step(), parameterChanged(), midiRealtime(), or midiMessage().
  */
 void		NT_updateParameterDefinition( uint32_t algorithmIndex, uint32_t parameterIndex );
 

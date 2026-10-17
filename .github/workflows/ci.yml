@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-windows:
+    name: Native DSP and adapter
+    runs-on: windows-2025
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Release tests and strict core warnings
+        shell: pwsh
+        run: ./test.ps1 -Compiler clang++ -WarningsAsErrors -StrictCore -OutDir ./build/native
+      - name: Address and undefined-behaviour sanitizers
+        shell: pwsh
+        run: ./test.ps1 -Compiler clang++ -Sanitize -OutDir ./build/sanitizers
+      - name: Failed builds preserve the last verified object
+        shell: pwsh
+        run: ./tools/test_build.ps1
+      - name: Smoke-test offline renderer
+        shell: pwsh
+        run: |
+          ./tools/render.ps1 -Compiler clang++ -Source impulse -Duration 0.05 -FailOnClip -Output ./build/ci-impulse.wav
+          ./tools/assert_wav.ps1 -Path ./build/ci-impulse.wav -ExpectedSampleRate 48000 -ExpectedBitDepth 24
+          ./tools/test_renderer.ps1 -Executable ./build/smear_render.exe
+
+  arm-cortex-m7:
+    name: Cortex-M7 object and ABI
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-dev
+      - name: Build relocatable object
+        run: make
+      - name: Verify API hash, ELF ABI, export and imports
+        shell: pwsh
+        run: ./verify.ps1 -ObjectPath ./build/smearnt_nt.o -Nm /usr/bin/arm-none-eabi-nm
+      - name: PowerShell build and replacement of an existing object
+        shell: pwsh
+        run: |
+          ./build.ps1 -Toolchain /usr/bin/arm-none-eabi-g++ -OutDir ./build/powershell
+          $before = (Get-FileHash ./build/powershell/smearnt_nt.o).Hash
+          ./build.ps1 -Toolchain /usr/bin/arm-none-eabi-g++ -OutDir ./build/powershell
+          if ((Get-FileHash ./build/powershell/smearnt_nt.o).Hash -ne $before) { throw 'ARM rebuild changed without source changes' }
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smearnt-cortex-m7
+          path: build/smearnt_nt.o
+          if-no-files-found: error
+          retention-days: 14

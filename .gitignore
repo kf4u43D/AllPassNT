@@ -1,8 +1,13 @@
 build/
+archive/
+firmware/*/*.zip
+firmware/*/*.pdf
 distingNT_API/
 *.o
 *.obj
 *.exe
+*.dll
+*.pdb
 *.log
 *.tmp
 

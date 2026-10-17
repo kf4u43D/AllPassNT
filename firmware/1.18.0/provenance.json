@@ -1,0 +1,48 @@
+{
+  "hardware": "Expert Sleepers disting NT",
+  "firmware_version": "1.18.0",
+  "release_date": "2026-09-04",
+  "verified_on": "2026-10-05",
+  "source_page": "https://www.expert-sleepers.co.uk/distingNTfirmwareupdates.html",
+  "package_tool_version": "MCUXpresso Secure Provisioning Tool 26.06",
+  "checksum_scope": "SHA256 calculated locally after download; no official checksum was advertised by the source page.",
+  "status": "Downloaded only; not flashed or deployed.",
+  "validation": {
+    "zip_entries_read_without_error": true,
+    "pdf_header": "%PDF-1.7",
+    "manifest": {
+      "processor": "MIMXRT1060",
+      "secure_provisioning_tool_version": "26.06",
+      "app_firmware": "bootable_images/disting_NT.bin",
+      "connection_type": "usb",
+      "usb_vid": "0x1FC9",
+      "usb_pid": "0x0135",
+      "firmware_version_field_present": false,
+      "file_checksum_fields_present": false
+    }
+  },
+  "sdk_compatibility": {
+    "project_api_version": 13,
+    "project_sdk_commit": "f440d20",
+    "minimum_stable_firmware": "1.15.0",
+    "latest_upstream_api_version": 14,
+    "latest_upstream_api_commit": "f8b7d69b629f5bf40ee14979bcda7e50a31111e7",
+    "latest_upstream_api_added_on": "2026-09-29",
+    "latest_upstream_api_source": "https://github.com/expertsleepersltd/distingNT_API/commit/f8b7d69b629f5bf40ee14979bcda7e50a31111e7",
+    "decision": "Keep the project's pinned API v13. API v14 was added after firmware 1.18.0 was released; its minimum stable firmware is not confirmed by the manufacturer's release history."
+  },
+  "files": [
+    {
+      "name": "distingNT_1.18.0.zip",
+      "source_url": "https://www.expert-sleepers.co.uk/downloads/firmware/distingNT_1.18.0.zip",
+      "size_bytes": 1945064,
+      "sha256_local": "effc501552692a36734fcb767c34ab4f51fd7b36a368374a5c3fea62bc7c22fd"
+    },
+    {
+      "name": "disting_NT_user_manual_1.18.pdf",
+      "source_url": "https://www.expert-sleepers.co.uk/downloads/manuals/disting_NT_user_manual_1.18.pdf",
+      "size_bytes": 14402677,
+      "sha256_local": "e4fb50b85dba40c15fa172e63f365b2ceee878990da96d36cb543ec773f75a48"
+    }
+  ]
+}

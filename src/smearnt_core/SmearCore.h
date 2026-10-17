@@ -16,6 +16,9 @@ public:
     void setStages(float norm);            // 0..1
     void setDistributionMorph(float norm); // 0..1
     void setFeedback(float norm);          // 0..1
+    void setStereoSpread(float norm);      // 0..1; 0 preserves the original stereo signal
+    void setStereoMotion(float position);  // -1..1; positive moves high frequencies right
+    void setStereoCrossover(float hz);     // 80..4000 Hz; default 250 Hz
 
     void processBlock(const float* inL, const float* inR,
                       float* outL, float* outR,
@@ -28,14 +31,17 @@ private:
     void computeMorphFrequencies(float freqNorm, float distNorm, float* dst);
     float clamp01(float x) const;
     float saturate(float x) const;
+    void processStereo(float inL, float inR, float& outL, float& outR);
 
-    static constexpr float kMinFreq = 200.0f;
-    static constexpr float kMaxFreq = 12000.0f;
+    static constexpr float kMinFreq = 20.0f;
     static constexpr float kMinRadius = 0.6f;
-    static constexpr float kMaxRadius = 0.8f;
+    static constexpr float kMaxRadius = 0.97f;
     static constexpr float kMaxFeedback = 0.6f;
+    static constexpr float kMaxInputMagnitude = 1.0e6f;
     static constexpr float kCoeffChangeThreshold = 0.00001f;
     static constexpr int kCoeffUpdateInterval = 32;
+    static_assert(kCoeffUpdateInterval == AllpassNetwork::kCoefficientRampSamples,
+                  "coefficient refresh and interpolation must have the same period");
 
     float sampleRate_ = 48000.0f;
 
@@ -53,6 +59,15 @@ private:
     ParamSmoother stagesSm_;
     ParamSmoother distSm_;
     ParamSmoother fbSm_;
+    ParamSmoother spreadSm_;
+    ParamSmoother motionSm_;
+    ParamSmoother crossoverSm_;
+
+    float stereoLowMid_ = 0.0f;
+    float stereoLowSide_ = 0.0f;
+    float stereoDecorrelatorState_ = 0.0f;
+    float stereoDecorrelatorCoefficient_ = -0.5f;
+    float stereoCrossoverHz_ = 250.0f;
 
     float feedbackStateL_ = 0.0f;
     float feedbackStateR_ = 0.0f;

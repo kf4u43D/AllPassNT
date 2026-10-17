@@ -1,0 +1,2 @@
+effc501552692a36734fcb767c34ab4f51fd7b36a368374a5c3fea62bc7c22fd  distingNT_1.18.0.zip
+e4fb50b85dba40c15fa172e63f365b2ceee878990da96d36cb543ec773f75a48  disting_NT_user_manual_1.18.pdf

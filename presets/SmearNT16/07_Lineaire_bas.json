@@ -1,0 +1,61 @@
+{
+  "kind": "disting NT preset",
+  "author": "SmearNT",
+  "engine": {
+    "sampleRate": 48000,
+    "blockSize": 24
+  },
+  "version": 2,
+  "name": "SMNT 07 Lineaire bas",
+  "slots": [
+    {
+      "guid": "SMNT",
+      "specs": [
+        0,
+        0,
+        0
+      ],
+      "name": "SmearNT",
+      "parameters": [
+        0,
+        1,
+        2,
+        13,
+        1,
+        14,
+        1,
+        15,
+        60,
+        100,
+        0,
+        0
+      ],
+      "ui": {
+        "page": 0,
+        "items": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "display": "params"
+      }
+    }
+  ],
+  "ui": {
+    "currentSlot": 0,
+    "displayMode": "algorithm"
+  }
+}

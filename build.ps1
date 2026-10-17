@@ -1,8 +1,9 @@
 [CmdletBinding()]
 param(
     [string]$Toolchain = "",
-    [string]$NtApiPath = ".\distingNT_API",
+    [string]$NtApiPath = "",
     [string]$OutDir = ".\build",
+    [ValidatePattern('^[A-Za-z0-9_-]+\.o$')]
     [string]$Target = "smearnt_nt.o",
     [switch]$Clean
 )
@@ -13,7 +14,14 @@ function Resolve-Toolchain {
     param([string]$Requested)
 
     if ($Requested) {
-        return $Requested
+        if (Test-Path -LiteralPath $Requested) {
+            return (Resolve-Path -LiteralPath $Requested).Path
+        }
+        $requestedCommand = Get-Command $Requested -ErrorAction SilentlyContinue
+        if ($requestedCommand) {
+            return $requestedCommand.Source
+        }
+        throw "Compilateur ARM introuvable: $Requested"
     }
 
     $fromPath = Get-Command "arm-none-eabi-g++" -ErrorAction SilentlyContinue
@@ -30,7 +38,11 @@ function Resolve-Toolchain {
 }
 
 $repoRoot = $PSScriptRoot
-$outputDirectory = Join-Path $repoRoot $OutDir
+$outputDirectory = if ([System.IO.Path]::IsPathRooted($OutDir)) {
+    [System.IO.Path]::GetFullPath($OutDir)
+} else {
+    [System.IO.Path]::GetFullPath((Join-Path $repoRoot $OutDir))
+}
 $outputPath = Join-Path $outputDirectory $Target
 
 if ($Clean) {
@@ -43,15 +55,32 @@ if ($Clean) {
 
 $compiler = Resolve-Toolchain -Requested $Toolchain
 $localInclude = Join-Path $repoRoot "include"
-$apiInclude = Join-Path $repoRoot (Join-Path $NtApiPath "include")
 $srcInclude = Join-Path $repoRoot "src"
+$apiHeaderForBuild = Join-Path $localInclude "distingnt\api.h"
 
-if (!(Test-Path -LiteralPath (Join-Path $localInclude "distingnt\api.h")) -and
-    !(Test-Path -LiteralPath (Join-Path $apiInclude "distingnt\api.h"))) {
-    throw "Header disting NT introuvable. Attendu dans include\distingnt\api.h ou $apiInclude."
+if (!(Test-Path -LiteralPath $apiHeaderForBuild)) {
+    throw "Header disting NT introuvable: include\distingnt\api.h"
 }
 
+$includeArguments = @()
+if ($NtApiPath) {
+    $sdkRoot = if ([System.IO.Path]::IsPathRooted($NtApiPath)) {
+        [System.IO.Path]::GetFullPath($NtApiPath)
+    } else {
+        [System.IO.Path]::GetFullPath((Join-Path $repoRoot $NtApiPath))
+    }
+    $sdkInclude = Join-Path $sdkRoot "include"
+    if (!(Test-Path -LiteralPath (Join-Path $sdkInclude "distingnt\api.h"))) {
+        throw "Header disting NT introuvable dans le SDK: $sdkInclude"
+    }
+    $apiHeaderForBuild = Join-Path $sdkInclude "distingnt\api.h"
+    $includeArguments += "-I$sdkInclude"
+}
+$includeArguments += @("-I$localInclude", "-I$srcInclude")
+
+& (Join-Path $repoRoot "tools\assert_api.ps1") -Path $apiHeaderForBuild
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
+$temporaryOutputPath = Join-Path $outputDirectory ("{0}.{1}.tmp" -f $Target, [System.Guid]::NewGuid().ToString("N"))
 
 $sources = @(
     "src\SmearNTAdapter.cpp",
@@ -72,15 +101,38 @@ $arguments = @(
     "-Os",
     "-fPIC",
     "-Wall",
-    "-I$localInclude",
-    "-I$apiInclude",
-    "-I$srcInclude",
+    "-Wextra",
     "-r",
     "-nostdlib"
-) + $sources + @("-o", $outputPath)
+) + $includeArguments + $sources + @("-o", $temporaryOutputPath)
 
 Write-Host "Build: $outputPath"
-& $compiler @arguments
-if ($LASTEXITCODE -ne 0) {
-    exit $LASTEXITCODE
+$compilerDirectory = Split-Path -Parent $compiler
+$nmName = if ([System.IO.Path]::GetExtension($compiler) -eq ".exe") {
+    "arm-none-eabi-nm.exe"
+} else {
+    "arm-none-eabi-nm"
+}
+$nmPath = Join-Path $compilerDirectory $nmName
+$readElfName = if ([System.IO.Path]::GetExtension($compiler) -eq ".exe") {
+    "arm-none-eabi-readelf.exe"
+} else {
+    "arm-none-eabi-readelf"
+}
+$readElfPath = Join-Path $compilerDirectory $readElfName
+try {
+    & $compiler @arguments
+    if ($LASTEXITCODE -ne 0) {
+        throw "Compilation ARM echouee avec le code $LASTEXITCODE."
+    }
+    & (Join-Path $repoRoot "verify.ps1") -ObjectPath $temporaryOutputPath -Nm $nmPath -ReadElf $readElfPath -ApiHeaderPath $apiHeaderForBuild
+    if (Test-Path -LiteralPath $outputPath -PathType Leaf) {
+        [System.IO.File]::Replace($temporaryOutputPath, $outputPath, [System.Management.Automation.Language.NullString]::Value)
+    } else {
+        [System.IO.File]::Move($temporaryOutputPath, $outputPath)
+    }
+} finally {
+    if (Test-Path -LiteralPath $temporaryOutputPath -PathType Leaf) {
+        Remove-Item -LiteralPath $temporaryOutputPath -Force
+    }
 }

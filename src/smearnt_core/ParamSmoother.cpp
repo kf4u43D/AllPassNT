@@ -1,2 +1,6 @@
 #include "ParamSmoother.h"
-// Header-only style; kept for symmetry and easy inclusion in build systems.
+
+constexpr float ParamSmoother::kSnapThreshold;
+
+// The implementation stays inline; this translation unit owns the C++11
+// definition of the non-integral constexpr member.
