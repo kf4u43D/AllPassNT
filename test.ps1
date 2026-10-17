@@ -86,7 +86,9 @@ if ($Sanitize) {
         "-fno-optimize-sibling-calls"
     )
     if ($isWindowsHost -and $isClang) {
-        $arguments += "-fms-runtime-lib=dll"
+        # Some Clang drivers still add libcmt when the DLL CRT is requested.
+        # Exclude it so the sanitizer build consistently uses the DLL runtime.
+        $arguments += @("-fms-runtime-lib=dll", "-Wl,/NODEFAULTLIB:libcmt")
     }
 } else {
     $arguments += "-O2"
